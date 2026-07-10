@@ -330,7 +330,10 @@
         <button class="st-session-back" id="st-back">‹ Back to today</button>
         <div class="st-session-subject">${item.subject}${item.note?` — ${item.note}`:""}</div>
         <div class="st-session-time">${fmtTime(item.start)} – ${fmtTime(item.end)}</div>
-        <input class="st-session-topic" id="st-topic-input" placeholder="What topic are you covering today?" value="${b.topic ? escapeHtml(b.topic) : ""}"/>
+        <div style="display:flex;gap:8px;margin-bottom:26px;">
+          <input class="st-session-topic" id="st-topic-input" placeholder="What topic are you covering today?" value="${b.topic ? escapeHtml(b.topic) : ""}" style="margin-bottom:0;flex:1;"/>
+          <button class="st-btn st-btn-primary" id="st-save-topic" style="padding:10px 16px;border-radius:8px;font-size:13.5px;">Save</button>
+        </div>
         ${isDone ? `<div class="st-session-donebanner">✓ Completed</div>` : ""}
         <div class="st-timer" id="st-session-timer">${fmtTimer(b.remaining)}</div>
         <div class="st-timer-label">${b.running ? "Running" : (isDone ? "Time" : "Remaining")}</div>
@@ -347,6 +350,24 @@
     });
     document.getElementById("st-topic-input").addEventListener("blur", ()=>{
       saveDay(state.currentDate, state.dayData);
+    });
+    document.getElementById("st-save-topic").addEventListener("click", ()=>{
+      const input = document.getElementById("st-topic-input");
+      state.dayData[id].topic = input.value;
+      saveDay(state.currentDate, state.dayData);
+      
+      const btn = document.getElementById("st-save-topic");
+      const originalText = btn.textContent;
+      btn.textContent = "Saved ✓";
+      btn.style.background = "var(--surface-2)";
+      btn.style.color = "var(--accent)";
+      btn.style.borderColor = "var(--accent)";
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = "";
+        btn.style.color = "";
+        btn.style.borderColor = "";
+      }, 1500);
     });
     document.getElementById("st-start-pause").addEventListener("click", ()=>{
       if(state.dayData[id].status==="done") return;
