@@ -1,0 +1,492 @@
+<style>
+  :root{
+    --bg:#14161a; --surface:#1c1f25; --surface-2:#22262d; --border:#2a2e36;
+    --text:#eceef0; --text-dim:#9096a1; --text-faint:#565c67;
+    --accent:#5fcdba; --accent-dim:rgba(95,205,186,0.14); --accent-strong:#84e0d0;
+    --danger:#d97878; --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  #st-root{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh;
+    padding:28px 16px 60px; display:flex; justify-content:center;
+  }
+  #st-container{width:100%;max-width:480px;}
+
+  .st-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:4px;}
+  .st-datebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+  .st-datebar-main{display:flex;align-items:center;gap:10px;}
+  .st-arrow{background:none;border:1px solid var(--border);color:var(--text-dim);width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:border-color .15s,color .15s;}
+  .st-arrow:hover{border-color:var(--accent);color:var(--accent);}
+  .st-date{font-size:19px;font-weight:600;letter-spacing:-.01em;min-width:150px;}
+  .st-today-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s;}
+  .st-today-btn:hover{color:var(--text);border-color:var(--accent);}
+
+  .st-hero{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;align-items:center;gap:22px;margin-bottom:22px;}
+  .st-ring-wrap{position:relative;width:96px;height:96px;flex-shrink:0;}
+  .st-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:300;letter-spacing:-.02em;}
+  .st-hero-label{color:var(--text-faint);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+  .st-hero-sub{font-size:14px;color:var(--text-dim);}
+  .st-hero-count{font-weight:600;color:var(--text);}
+
+  .st-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+  .st-tab{background:none;border:none;color:var(--text-faint);font-size:13.5px;font-weight:600;padding:10px 4px;margin-right:20px;cursor:pointer;position:relative;}
+  .st-tab.active{color:var(--text);}
+  .st-tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);border-radius:2px;}
+
+  /* list rows */
+  .st-block{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,opacity .15s;}
+  .st-block:hover{border-color:var(--accent);}
+  .st-block.done{opacity:.55;}
+  .st-block.active-run{border-color:var(--accent);}
+  .st-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .st-block-main{flex:1;min-width:0;}
+  .st-block-subject{font-size:13.5px;font-weight:600;margin-bottom:2px;}
+  .st-block.done .st-block-subject{text-decoration:line-through;color:var(--text-dim);}
+  .st-block-topic{font-size:12px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px;}
+  .st-block-time{font-size:11.5px;color:var(--text-faint);}
+  .st-block-status{font-size:11px;flex-shrink:0;text-align:right;font-weight:600;}
+  .st-status-pending{color:var(--text-faint);}
+  .st-status-running{color:var(--accent);}
+  .st-status-done{color:var(--accent);}
+  .st-status-done svg{width:16px;height:16px;stroke:var(--accent);}
+
+  .st-break-row{display:flex;align-items:center;gap:10px;padding:6px 14px;margin:2px 0 10px;color:var(--text-faint);font-size:11.5px;}
+  .st-break-line{flex:1;height:1px;background:var(--border);}
+
+  /* session screen */
+  .st-session{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 22px;text-align:center;}
+  .st-session-back{background:none;border:none;color:var(--text-dim);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:18px;}
+  .st-session-back:hover{color:var(--text);}
+  .st-session-subject{font-size:20px;font-weight:700;margin-bottom:2px;}
+  .st-session-time{font-size:12.5px;color:var(--text-faint);margin-bottom:20px;}
+  .st-session-topic{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:26px;text-align:left;}
+  .st-session-topic:focus{outline:none;border-color:var(--accent);}
+  .st-timer{font-size:52px;font-weight:200;letter-spacing:.01em;margin-bottom:6px;font-variant-numeric:tabular-nums;}
+  .st-timer-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px;}
+  .st-session-actions{display:flex;gap:10px;justify-content:center;}
+  .st-btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;}
+  .st-btn-primary{background:var(--accent);color:#0e1512;}
+  .st-btn-primary:hover{background:var(--accent-strong);}
+  .st-btn-ghost{background:none;border:1px solid var(--border);color:var(--text-dim);}
+  .st-btn-ghost:hover{color:var(--text);}
+  .st-btn-done{background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);}
+  .st-btn-done:hover{color:var(--accent);border-color:var(--accent);}
+  .st-session-reset{margin-top:16px;font-size:11.5px;color:var(--text-faint);background:none;border:none;cursor:pointer;text-decoration:underline;}
+  .st-session-donebanner{color:var(--accent);font-size:13px;font-weight:600;margin-bottom:20px;}
+
+  /* progress tab */
+  .st-range-row{display:flex;gap:8px;margin-bottom:18px;}
+  .st-range-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;transition:all .15s;}
+  .st-range-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent-strong);}
+  .st-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;text-align:center;}
+  .st-stat-num{font-size:44px;font-weight:200;letter-spacing:-.02em;line-height:1;}
+  .st-stat-sub{color:var(--text-dim);font-size:13px;margin-top:6px;}
+  .st-section-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:12px;font-weight:600;}
+  .st-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .st-bar-label{width:110px;font-size:12.5px;color:var(--text-dim);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .st-bar-track{flex:1;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;}
+  .st-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .3s;}
+  .st-bar-pct{width:36px;text-align:right;font-size:12px;color:var(--text-faint);flex-shrink:0;}
+  .st-heat-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:4px;}
+  .st-heat-cell{aspect-ratio:1;border-radius:4px;background:var(--surface-2);}
+  .st-loading{color:var(--text-faint);font-size:13px;text-align:center;padding:30px 0;}
+  @media (max-width:400px){ .st-heat-grid{grid-template-columns:repeat(7,1fr);} }
+</style>
+
+<div id="st-root">
+  <div id="st-container">
+    <div class="st-eyebrow">SSC CGL Prep</div>
+    <div class="st-datebar">
+      <div class="st-datebar-main">
+        <button class="st-arrow" id="st-prev">‹</button>
+        <div class="st-date" id="st-date-label">—</div>
+        <button class="st-arrow" id="st-next">›</button>
+      </div>
+      <button class="st-today-btn" id="st-jump-today">Today</button>
+    </div>
+
+    <div class="st-hero">
+      <div class="st-ring-wrap">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="42" fill="none" stroke="#22262d" stroke-width="8"/>
+          <circle id="st-ring-fg" cx="48" cy="48" r="42" fill="none" stroke="#5fcdba" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset .4s ease"/>
+        </svg>
+        <div class="st-ring-num" id="st-ring-num">0%</div>
+      </div>
+      <div>
+        <div class="st-hero-label">Today's progress</div>
+        <div class="st-hero-sub"><span class="st-hero-count" id="st-hero-count">0 / 0</span> blocks done</div>
+      </div>
+    </div>
+
+    <div class="st-tabs">
+      <button class="st-tab active" data-tab="today">Today</button>
+      <button class="st-tab" data-tab="progress">Progress</button>
+    </div>
+
+    <div id="st-tab-today">
+      <div id="st-list-view"></div>
+      <div id="st-session-view" style="display:none;"></div>
+    </div>
+
+    <div id="st-tab-progress" style="display:none;">
+      <div class="st-range-row">
+        <button class="st-range-btn active" data-range="week">Week</button>
+        <button class="st-range-btn" data-range="month">Month</button>
+        <button class="st-range-btn" data-range="all">All time</button>
+      </div>
+      <div id="st-progress-body"><div class="st-loading">Loading…</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- fixed daily template (10:00 AM - 6:45 PM) ----
+  const TEMPLATE = [
+    {id:"basic-maths",  subject:"Basic Maths",     start:"10:00", end:"11:00", isBreak:false},
+    {id:"break-1",      subject:"Break",           start:"11:00", end:"11:15", isBreak:true},
+    {id:"reasoning",    subject:"Reasoning",       start:"11:15", end:"12:30", isBreak:false},
+    {id:"break-2",      subject:"Lunch Break",     start:"12:30", end:"14:00", isBreak:true},
+    {id:"adv-maths-1",  subject:"Advanced Maths",  start:"14:00", end:"15:05", isBreak:false, note:"Part 1"},
+    {id:"break-3",      subject:"Break",           start:"15:05", end:"15:15", isBreak:true},
+    {id:"adv-maths-2",  subject:"Advanced Maths",  start:"15:15", end:"16:15", isBreak:false, note:"Part 2"},
+    {id:"break-4",      subject:"Break",           start:"16:15", end:"16:30", isBreak:true},
+    {id:"gk",           subject:"GK",              start:"16:30", end:"18:00", isBreak:false},
+    {id:"break-5",      subject:"Break",           start:"18:00", end:"18:15", isBreak:true},
+    {id:"english-vocab",subject:"English Vocab",   start:"18:15", end:"18:45", isBreak:false},
+  ];
+  const STUDY_IDS = TEMPLATE.filter(t=>!t.isBreak).map(t=>t.id);
+  const SUBJECT_COLORS = {
+    "Basic Maths":"#7b93b0","Advanced Maths":"#9b8bc4","Reasoning":"#7fb08a",
+    "GK":"#c4a26e","English Vocab":"#c48b9f"
+  };
+  function colorFor(s){ return SUBJECT_COLORS[s] || "#8b9099"; }
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function toKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function fromKey(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); }
+  function fmtLabel(d){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const dd=new Date(d); dd.setHours(0,0,0,0);
+    const diff=Math.round((dd-today)/86400000);
+    const wd=d.toLocaleDateString(undefined,{weekday:"short"});
+    const md=d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    if(diff===0) return `Today, ${md}`;
+    if(diff===-1) return `Yesterday, ${md}`;
+    if(diff===1) return `Tomorrow, ${md}`;
+    return `${wd}, ${md}`;
+  }
+  function fmtTime(t){
+    let [h,m]=t.split(":").map(Number);
+    const ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12;
+    return `${h}:${pad(m)} ${ap}`;
+  }
+  function durationSec(item){
+    const [sh,sm]=item.start.split(":").map(Number);
+    const [eh,em]=item.end.split(":").map(Number);
+    return ((eh*60+em)-(sh*60+sm))*60;
+  }
+  function fmtTimer(sec){
+    sec=Math.max(0,Math.round(sec));
+    const m=Math.floor(sec/60), s=sec%60;
+    return `${pad(m)}:${pad(s)}`;
+  }
+
+  const state = { currentDate: new Date(), dayData: {}, view:"list", activeId:null };
+
+  let lastSavedData = {};
+
+  async function loadDay(date){
+    try{
+      const res = await fetch(`/api/day/${toKey(date)}`);
+      if(res.ok){
+        const data = await res.json();
+        lastSavedData = JSON.parse(JSON.stringify(data));
+        return data;
+      }
+    }catch(e){ console.error("load failed", e); }
+    const data = {};
+    STUDY_IDS.forEach(id=>{
+      const tmpl = TEMPLATE.find(t=>t.id===id);
+      data[id] = {topic:"", status:"pending", remaining:durationSec(tmpl), running:false};
+    });
+    lastSavedData = JSON.parse(JSON.stringify(data));
+    return data;
+  }
+  async function saveDay(date, data){
+    const dateStr = toKey(date);
+    for (const id of STUDY_IDS) {
+      const current = data[id];
+      const last = lastSavedData[id];
+      if (!last || current.topic !== last.topic || current.status !== last.status || current.remaining !== last.remaining || current.running !== last.running) {
+        try {
+          await fetch(`/api/day/${dateStr}/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              topic: current.topic,
+              status: current.status,
+              remaining: current.remaining,
+              running: current.running
+            })
+          });
+          lastSavedData[id] = JSON.parse(JSON.stringify(current));
+        } catch(e) {
+          console.error("patch failed for block", id, e);
+        }
+      }
+    }
+  }
+
+  function pauseAnyRunning(){
+    Object.values(state.dayData).forEach(b=>{ if(b.running) b.running=false; });
+  }
+
+  async function goToDate(d){
+    pauseAnyRunning();
+    if(state.currentDate) await saveDay(state.currentDate, state.dayData);
+    state.currentDate = d;
+    state.view = "list"; state.activeId = null;
+    document.getElementById("st-date-label").textContent = fmtLabel(d);
+    state.dayData = await loadDay(d);
+    render();
+  }
+
+  function render(){
+    document.getElementById("st-list-view").style.display = state.view==="list"?"block":"none";
+    document.getElementById("st-session-view").style.display = state.view==="session"?"block":"none";
+    renderHero();
+    if(state.view==="list") renderList();
+    else renderSession();
+  }
+
+  function renderHero(){
+    const total = STUDY_IDS.length;
+    const done = STUDY_IDS.filter(id=>state.dayData[id] && state.dayData[id].status==="done").length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById("st-hero-count").textContent = `${done} / ${total}`;
+    document.getElementById("st-ring-num").textContent = pct+"%";
+    const circumference = 264;
+    document.getElementById("st-ring-fg").style.strokeDashoffset = circumference - (circumference*pct/100);
+  }
+
+  function renderList(){
+    const wrap = document.getElementById("st-list-view");
+    wrap.innerHTML = "";
+    TEMPLATE.forEach(item=>{
+      if(item.isBreak){
+        const row = document.createElement("div");
+        row.className = "st-break-row";
+        row.innerHTML = `<span>${item.subject} · ${fmtTime(item.start)}–${fmtTime(item.end)}</span><span class="st-break-line"></span>`;
+        wrap.appendChild(row);
+        return;
+      }
+      const b = state.dayData[item.id];
+      const row = document.createElement("div");
+      row.className = "st-block" + (b.status==="done"?" done":"") + (b.running?" active-run":"");
+      let statusHtml;
+      if(b.status==="done"){
+        statusHtml = `<span class="st-status-done">✓ Done</span>`;
+      } else if(b.running){
+        statusHtml = `<span class="st-status-running">${fmtTimer(b.remaining)}</span>`;
+      } else if(b.status==="in-progress"){
+        statusHtml = `<span class="st-status-pending">Paused</span>`;
+      } else {
+        statusHtml = `<span class="st-status-pending">Tap to start</span>`;
+      }
+      row.innerHTML = `
+        <span class="st-dot" style="background:${colorFor(item.subject)}"></span>
+        <div class="st-block-main">
+          <div class="st-block-subject">${item.subject}${item.note?` <span style="color:var(--text-faint);font-weight:400;">(${item.note})</span>`:""}</div>
+          <div class="st-block-topic">${b.topic ? escapeHtml(b.topic) : `<span style="color:var(--text-faint)">No topic set yet</span>`}</div>
+          <div class="st-block-time">${fmtTime(item.start)} – ${fmtTime(item.end)}</div>
+        </div>
+        <div class="st-block-status">${statusHtml}</div>
+      `;
+      row.addEventListener("click", ()=> openSession(item.id));
+      wrap.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  function openSession(id){
+    state.view = "session"; state.activeId = id;
+    render();
+  }
+
+  function renderSession(){
+    const id = state.activeId;
+    const item = TEMPLATE.find(t=>t.id===id);
+    const b = state.dayData[id];
+    const wrap = document.getElementById("st-session-view");
+    const isDone = b.status==="done";
+    wrap.innerHTML = `
+      <div class="st-session">
+        <button class="st-session-back" id="st-back">‹ Back to today</button>
+        <div class="st-session-subject">${item.subject}${item.note?` — ${item.note}`:""}</div>
+        <div class="st-session-time">${fmtTime(item.start)} – ${fmtTime(item.end)}</div>
+        <input class="st-session-topic" id="st-topic-input" placeholder="What topic are you covering today?" value="${b.topic ? escapeHtml(b.topic) : ""}"/>
+        ${isDone ? `<div class="st-session-donebanner">✓ Completed</div>` : ""}
+        <div class="st-timer" id="st-session-timer">${fmtTimer(b.remaining)}</div>
+        <div class="st-timer-label">${b.running ? "Running" : (isDone ? "Time" : "Remaining")}</div>
+        <div class="st-session-actions">
+          <button class="st-btn ${b.running?'st-btn-ghost':'st-btn-primary'}" id="st-start-pause">${b.running ? "Pause" : (b.status==="in-progress" ? "Resume" : "Start")}</button>
+          <button class="st-btn st-btn-done" id="st-mark-done">${isDone?"Mark not done":"Mark complete"}</button>
+        </div>
+        <button class="st-session-reset" id="st-reset">Reset timer</button>
+      </div>
+    `;
+    document.getElementById("st-back").addEventListener("click", ()=>{ state.view="list"; render(); });
+    document.getElementById("st-topic-input").addEventListener("input", (e)=>{
+      state.dayData[id].topic = e.target.value;
+    });
+    document.getElementById("st-topic-input").addEventListener("blur", ()=>{
+      saveDay(state.currentDate, state.dayData);
+    });
+    document.getElementById("st-start-pause").addEventListener("click", ()=>{
+      if(state.dayData[id].status==="done") return;
+      if(state.dayData[id].running){
+        state.dayData[id].running = false;
+      } else {
+        pauseAnyRunning();
+        state.dayData[id].running = true;
+        state.dayData[id].status = "in-progress";
+      }
+      saveDay(state.currentDate, state.dayData);
+      render();
+    });
+    document.getElementById("st-mark-done").addEventListener("click", ()=>{
+      if(state.dayData[id].status==="done"){
+        state.dayData[id].status = "pending";
+      } else {
+        state.dayData[id].status = "done";
+        state.dayData[id].running = false;
+      }
+      saveDay(state.currentDate, state.dayData);
+      render();
+    });
+    document.getElementById("st-reset").addEventListener("click", ()=>{
+      state.dayData[id].remaining = durationSec(item);
+      state.dayData[id].status = "pending";
+      state.dayData[id].running = false;
+      saveDay(state.currentDate, state.dayData);
+      render();
+    });
+  }
+
+  // global 1s ticker
+  let tickCount = 0;
+  setInterval(()=>{
+    let changed = false, needSave = false;
+    STUDY_IDS.forEach(id=>{
+      const b = state.dayData[id];
+      if(b && b.running && b.remaining > 0){
+        b.remaining -= 1;
+        changed = true;
+        if(b.remaining <= 0){
+          b.remaining = 0; b.running = false; b.status = "done"; needSave = true;
+        }
+      }
+    });
+    if(changed){
+      tickCount++;
+      if(state.view==="session"){
+        const el = document.getElementById("st-session-timer");
+        if(el) el.textContent = fmtTimer(state.dayData[state.activeId].remaining);
+        if(needSave) render(); // refresh buttons/banner on completion
+      } else if(state.view==="list"){
+        renderList();
+      }
+      if(needSave || tickCount % 5 === 0) saveDay(state.currentDate, state.dayData);
+    }
+  }, 1000);
+
+  document.getElementById("st-prev").addEventListener("click", ()=>{
+    const d=new Date(state.currentDate); d.setDate(d.getDate()-1); goToDate(d);
+  });
+  document.getElementById("st-next").addEventListener("click", ()=>{
+    const d=new Date(state.currentDate); d.setDate(d.getDate()+1); goToDate(d);
+  });
+  document.getElementById("st-jump-today").addEventListener("click", ()=> goToDate(new Date()));
+
+  document.querySelectorAll(".st-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".st-tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      const which = tab.dataset.tab;
+      document.getElementById("st-tab-today").style.display = which==="today"?"block":"none";
+      document.getElementById("st-tab-progress").style.display = which==="progress"?"block":"none";
+      if(which==="progress") loadProgress(currentRange);
+    });
+  });
+
+  let currentRange = "week";
+  let allDataCache = null;
+  document.querySelectorAll(".st-range-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".st-range-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      currentRange = btn.dataset.range;
+      loadProgress(currentRange);
+    });
+  });
+
+  async function loadProgress(range){
+    const body = document.getElementById("st-progress-body");
+    body.innerHTML = `<div class="st-loading">Loading…</div>`;
+    try {
+      const res = await fetch(`/api/stats?range=${range}`);
+      if (!res.ok) throw new Error("Failed to fetch statistics");
+      const stats = await res.json();
+
+      let subjHtml = "";
+      Object.keys(stats.bySubject).sort().forEach(s=>{
+        const st = stats.bySubject[s];
+        subjHtml += `<div class="st-bar-row">
+          <div class="st-bar-label">${s}</div>
+          <div class="st-bar-track"><div class="st-bar-fill" style="width:${st.pct}%;background:${colorFor(s)}"></div></div>
+          <div class="st-bar-pct">${st.pct}%</div>
+        </div>`;
+      });
+      if(!subjHtml) subjHtml = `<div class="st-loading">No data yet for this range.</div>`;
+
+      let heatHtml = "";
+      stats.heatmap.forEach(h => {
+        const t = h.total;
+        const d = h.done;
+        const p = t ? d/t : 0;
+        let bg = "#22262d";
+        if(t>0){
+          if(p>=1) bg="#5fcdba";
+          else if(p>=0.5) bg="rgba(95,205,186,0.55)";
+          else if(p>0) bg="rgba(95,205,186,0.28)";
+          else bg="rgba(217,120,120,0.35)";
+        }
+        const label = fromKey(h.date).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+        heatHtml += `<div class="st-heat-cell" title="${label}: ${d}/${t} done" style="background:${bg}"></div>`;
+      });
+
+      body.innerHTML = `
+        <div class="st-stat-card">
+          <div class="st-stat-num">${stats.pct}%</div>
+          <div class="st-stat-sub">${stats.done} of ${stats.total} blocks completed</div>
+        </div>
+        <div class="st-section-label">By subject</div>
+        ${subjHtml}
+        <div class="st-section-label" style="margin-top:22px;">Last 30 days</div>
+        <div class="st-heat-grid">${heatHtml}</div>
+      `;
+    } catch(e) {
+      body.innerHTML = `<div class="st-loading" style="color:var(--danger)">Failed to load progress data.</div>`;
+      console.error("loadProgress error:", e);
+    }
+  }
+
+  goToDate(state.currentDate);
+})();
+</script>
