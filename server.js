@@ -1,5 +1,5 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const { createClient } = require('@libsql/client');
 const path = require('path');
 
 const app = express();
@@ -7,32 +7,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// SQLite database connection
-const fs = require('fs');
-const dataDir = path.join(__dirname, '.data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-const dbPath = path.join(dataDir, 'study_tracker.db');
-const db = new sqlite3.Database(dbPath);
+// Database connection (Turso in production, local SQLite file for development)
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+  authToken: process.env.TURSO_AUTH_TOKEN
+});
 
-// Helper functions to wrap SQLite functions with Promises
-const dbRun = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function(err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
+// Helper functions mapping to libSQL client execute syntax
+const dbRun = async (sql, params = []) => {
+  return await db.execute({ sql, args: params });
 };
 
-const dbAll = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
+const dbAll = async (sql, params = []) => {
+  const res = await db.execute({ sql, args: params });
+  return res.rows;
 };
 
 // Fixed templates for 6 study blocks
@@ -297,18 +285,4 @@ app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-// Glitch self-ping heartbeat to keep the app awake
-const https = require('https');
-if (process.env.PROJECT_DOMAIN) {
-  const glitchUrl = `https://${process.env.PROJECT_DOMAIN}.glitch.me/`;
-  console.log(`Setting up Glitch self-ping heartbeat for: ${glitchUrl}`);
-  
-  // Ping itself every 4 minutes (240000ms) to prevent Glitch idle sleep
-  setInterval(() => {
-    https.get(glitchUrl, (res) => {
-      console.log(`Self-ping heartbeat status: ${res.statusCode}`);
-    }).on('error', (err) => {
-      console.error(`Self-ping heartbeat failed: ${err.message}`);
-    });
-  }, 240000);
-}
+module.exports = app;
