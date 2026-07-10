@@ -296,3 +296,19 @@ app.get('/api/stats', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
+// Glitch self-ping heartbeat to keep the app awake
+const https = require('https');
+if (process.env.PROJECT_DOMAIN) {
+  const glitchUrl = `https://${process.env.PROJECT_DOMAIN}.glitch.me/`;
+  console.log(`Setting up Glitch self-ping heartbeat for: ${glitchUrl}`);
+  
+  // Ping itself every 4 minutes (240000ms) to prevent Glitch idle sleep
+  setInterval(() => {
+    https.get(glitchUrl, (res) => {
+      console.log(`Self-ping heartbeat status: ${res.statusCode}`);
+    }).on('error', (err) => {
+      console.error(`Self-ping heartbeat failed: ${err.message}`);
+    });
+  }, 240000);
+}
