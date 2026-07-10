@@ -8,6 +8,12 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Database connection (Turso in production, local SQLite file for development)
+if (process.env.TURSO_DATABASE_URL) {
+  console.log("Database Connection: Connecting to Turso Cloud Database.");
+} else {
+  console.log("Database Connection: No TURSO_DATABASE_URL env var found. Falling back to local SQLite (local.db).");
+}
+
 const db = createClient({
   url: process.env.TURSO_DATABASE_URL || 'file:local.db',
   authToken: process.env.TURSO_AUTH_TOKEN
@@ -194,12 +200,12 @@ app.patch('/api/day/:date/:blockId', async (req, res) => {
 app.get('/api/stats', async (req, res) => {
   const range = req.query.range || 'week'; // 'week' | 'month' | 'all'
 
-  // Get server local time as YYYY-MM-DD
+  // Get server local time as YYYY-MM-DD (overridden by optional query parameter today)
   const todayDate = new Date();
   const y = todayDate.getFullYear();
   const m = String(todayDate.getMonth() + 1).padStart(2, '0');
   const d = String(todayDate.getDate()).padStart(2, '0');
-  const todayStr = `${y}-${m}-${d}`;
+  const todayStr = req.query.today || `${y}-${m}-${d}`;
 
   try {
     let rows;

@@ -244,14 +244,21 @@
     Object.values(state.dayData).forEach(b=>{ if(b.running) b.running=false; });
   }
 
+  let isNavigating = false;
   async function goToDate(d){
-    pauseAnyRunning();
-    if(state.currentDate) await saveDay(state.currentDate, state.dayData);
-    state.currentDate = d;
-    state.view = "list"; state.activeId = null;
-    document.getElementById("st-date-label").textContent = fmtLabel(d);
-    state.dayData = await loadDay(d);
-    render();
+    if (isNavigating) return;
+    isNavigating = true;
+    try {
+      pauseAnyRunning();
+      if(state.currentDate) await saveDay(state.currentDate, state.dayData);
+      state.currentDate = d;
+      state.view = "list"; state.activeId = null;
+      document.getElementById("st-date-label").textContent = fmtLabel(d);
+      state.dayData = await loadDay(d);
+      render();
+    } finally {
+      isNavigating = false;
+    }
   }
 
   function render(){
@@ -461,7 +468,7 @@
     const body = document.getElementById("st-progress-body");
     body.innerHTML = `<div class="st-loading">Loading…</div>`;
     try {
-      const res = await fetch(`/api/stats?range=${range}`);
+      const res = await fetch(`/api/stats?range=${range}&today=${toKey(new Date())}`);
       if (!res.ok) throw new Error("Failed to fetch statistics");
       const stats = await res.json();
 
