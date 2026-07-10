@@ -315,6 +315,31 @@
       row.addEventListener("click", ()=> openSession(item.id));
       wrap.appendChild(row);
     });
+
+    // Add manual Save Progress button at the bottom of the list
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "st-btn st-btn-primary";
+    saveBtn.id = "st-save-all-day";
+    saveBtn.style.width = "100%";
+    saveBtn.style.marginTop = "16px";
+    saveBtn.textContent = "Save Today's Progress";
+    saveBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await saveDay(state.currentDate, state.dayData);
+      
+      const originalText = saveBtn.textContent;
+      saveBtn.textContent = "Progress Saved ✓";
+      saveBtn.style.background = "var(--surface-2)";
+      saveBtn.style.color = "var(--accent)";
+      saveBtn.style.borderColor = "var(--accent)";
+      setTimeout(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.style.background = "";
+        saveBtn.style.color = "";
+        saveBtn.style.borderColor = "";
+      }, 1500);
+    });
+    wrap.appendChild(saveBtn);
   }
 
   function escapeHtml(s){
