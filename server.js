@@ -316,6 +316,39 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
+// GET /api/health - Diagnostic endpoint to check DB connection and env configurations
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbUrl = process.env.TURSO_DATABASE_URL;
+    const hasToken = !!process.env.TURSO_AUTH_TOKEN;
+    
+    // Execute a test query
+    await db.execute("SELECT 1");
+    
+    res.json({
+      status: "healthy",
+      database: dbUrl ? "Turso Cloud" : "Local SQLite (local.db)",
+      connection: "success",
+      env: {
+        has_url: !!dbUrl,
+        has_token: hasToken
+      }
+    });
+  } catch (err) {
+    console.error("Health check failed:", err);
+    res.status(500).json({
+      status: "unhealthy",
+      database: process.env.TURSO_DATABASE_URL ? "Turso Cloud" : "Local SQLite (local.db)",
+      connection: "failed",
+      error: err.message,
+      env: {
+        has_url: !!process.env.TURSO_DATABASE_URL,
+        has_token: !!process.env.TURSO_AUTH_TOKEN
+      }
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
