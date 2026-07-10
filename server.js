@@ -69,7 +69,7 @@ async function ensureDayInitialized(date) {
   }
 }
 
-// Generate an array of dates in YYYY-MM-DD format going back N days
+// Generate an array of dates in YYYY-MM-DD format going back N calendar days (excluding Saturdays and Sundays)
 function getDatesInRange(range, todayStr) {
   const dates = [];
   const today = new Date(todayStr + 'T00:00:00');
@@ -77,10 +77,13 @@ function getDatesInRange(range, todayStr) {
   for (let i = 0; i < n; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    dates.push(`${y}-${m}-${day}`);
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Skip Saturday (6) and Sunday (0)
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dates.push(`${y}-${m}-${day}`);
+    }
   }
   return dates;
 }
@@ -202,6 +205,12 @@ app.get('/api/stats', async (req, res) => {
     let rows;
     if (range === 'all') {
       rows = await dbAll('SELECT * FROM study_sessions');
+      // Filter out weekends from 'all' range
+      rows = rows.filter(row => {
+        const d = new Date(row.date + 'T00:00:00');
+        const day = d.getDay();
+        return day !== 0 && day !== 6;
+      });
     } else {
       const dates = getDatesInRange(range, todayStr);
       if (dates.length === 0) {
@@ -243,13 +252,29 @@ app.get('/api/stats', async (req, res) => {
       sb.pct = sb.total ? Math.round((sb.done / sb.total) * 100) : 0;
     });
 
-    // Heatmap - always the last 30 days (reversed to oldest -> newest for the grid render order)
-    const heatDates = getDatesInRange('month', todayStr).reverse();
+    // Heatmap - always the last 30 calendar days (weekends are displayed as rest days with total = 0)
+    const heatDates = [];
+    const today = new Date(todayStr + 'T00:00:00');
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      heatDates.push(`${y}-${m}-${day}`);
+    }
+    heatDates.reverse();
+
     const placeholders = heatDates.map(() => '?').join(',');
     const heatRows = await dbAll(`SELECT * FROM study_sessions WHERE date IN (${placeholders})`, heatDates);
 
     const heatMapByDate = {};
     heatRows.forEach(row => {
+      // Exclude weekend records from being counted in heatmap values
+      const d = new Date(row.date + 'T00:00:00');
+      const dayOfWeek = d.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) return;
+
       if (!heatMapByDate[row.date]) {
         heatMapByDate[row.date] = { done: 0, total: 0 };
       }
@@ -260,7 +285,11 @@ app.get('/api/stats', async (req, res) => {
     });
 
     const heatmap = heatDates.map(date => {
-      const dayData = heatMapByDate[date] || { done: 0, total: 0 };
+      const d = new Date(date + 'T00:00:00');
+      const dayOfWeek = d.getDay();
+      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+      
+      const dayData = (!isWeekend && heatMapByDate[date]) || { done: 0, total: 0 };
       return {
         date,
         done: dayData.done,
